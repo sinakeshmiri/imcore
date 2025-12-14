@@ -22,11 +22,9 @@ func main() {
 	userRepository := repository.NewUserRepository(postgres)
 	useCase := usecase.NewCreateUserUsecase(userRepository, 3*time.Second)
 	handler := controller.NewHandler(useCase)
-	// 5. Router
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	// 6. Register oapi handlers
 	strict := api.NewStrictHandlerWithOptions(handler, nil, api.StrictHTTPServerOptions{
 		RequestErrorHandlerFunc: func(w http.ResponseWriter, r *http.Request, err error) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
