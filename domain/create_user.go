@@ -2,17 +2,21 @@ package domain
 
 import (
 	"context"
-
-	"github.com/sinakeshmiri/imcore/model"
+	"errors"
 )
 
 type CreateUserRequest struct {
-	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
 type CreateUserUsecase interface {
-	Create(c context.Context, user *model.User) error
-	GetUserByEmail(c context.Context, email string) (model.User, error)
+	Create(c context.Context, req *CreateUserRequest) error
 }
+
+var (
+	ErrDatabaseQueryFailed        = errors.New("failed to execute the query")
+	ErrUserAlreadyExists          = errors.New("user already exists")
+	ErrPasswordHashCreationFailed = errors.New("failed to calculate password hash")
+	ErrInvalidCredentials         = errors.New("invalid credentials")
+)

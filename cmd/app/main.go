@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sinakeshmiri/imcore/repository/user"
 	"log"
 	"net/http"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/sinakeshmiri/imcore/api/controller"
 	api "github.com/sinakeshmiri/imcore/api/generated"
 	"github.com/sinakeshmiri/imcore/infrastructure/database"
-	"github.com/sinakeshmiri/imcore/repository"
 	"github.com/sinakeshmiri/imcore/usecase"
 )
 
