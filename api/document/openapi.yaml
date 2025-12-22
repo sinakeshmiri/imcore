@@ -30,6 +30,64 @@ paths:
 
         '500':
           description: Something went wrong
+  /users/{username}:
+    get:
+      summary: Get a user by username
+      operationId: getUser
+      tags: [ Users ]
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+
+    put:
+      summary: Update a user
+      operationId: updateUser
+      tags: [ Users ]
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated
+        '404':
+          description: User not found
+
+    delete:
+      summary: Delete a user
+      operationId: deleteUser
+      tags: [ Users ]
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
   /roles:
     post:
       summary: Create a role
@@ -51,11 +109,237 @@ paths:
 
         '500':
           description: Something went wrong
+  /roles/{rolename}:
+    get:
+      summary: Get a role by name
+      operationId: getRole
+      tags: [ Roles ]
+      parameters:
+        - name: rolename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleResponse'
+        '404':
+          description: Role not found
+
+    put:
+      summary: Update a role
+      operationId: updateRole
+      tags: [ Roles ]
+      parameters:
+        - name: rolename
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleRequest'
+      responses:
+        '200':
+          description: Role updated
+        '404':
+          description: Role not found
+
+    delete:
+      summary: Delete a role
+      operationId: deleteRole
+      tags: [ Roles ]
+      parameters:
+        - name: rolename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Role deleted
+        '404':
+          description: Role not found
+  /applications:
+    get:
+      summary: List applications (incoming/outgoing for current user)
+      operationId: listApplications
+      tags: [Applications]
+      parameters:
+        - name: direction
+          in: query
+          required: false
+          description: >
+            incoming = applications for roles I own (I can review),
+            outgoing = applications I submitted,
+            all = both.
+          schema:
+            type: string
+            enum: [incoming, outgoing, all]
+            default: all
+
+        - name: status
+          in: query
+          required: false
+          description: Filter by application status
+          schema:
+            $ref: '#/components/schemas/ApplicationStatus'
+
+      responses:
+        '200':
+          description: Applications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Application'
+        '400':
+          description: Invalid query parameters
+        '500':
+          description: Something went wrong
+
+    post:
+      summary: Apply for a role (create an application)
+      operationId: createApplication
+      tags: [Applications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationRequest'
+      responses:
+        '201':
+          description: Application created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '400':
+          description: Invalid input
+        '404':
+          description: Role not found
+        '409':
+          description: Application already exists / conflict
+        '500':
+          description: Something went wrong
+
+  /applications/{application_id}:
+    get:
+      summary: Get an application and its status
+      operationId: getApplication
+      tags: [ Applications ]
+      parameters:
+        - name: application_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Application
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '404':
+          description: Not found
+    patch:
+      summary: Update application status
+      operationId: patchApplication
+      tags: [ Applications ]
+      parameters:
+        - name: application_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchApplicationRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '403':
+          description: Not allowed
+        '409':
+          description: Invalid transition / already decided
+        '404':
+          description: Not found
 
 
 
 components:
   schemas:
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        rolename:
+          type: string
+        applicantUsername:
+          type: string
+        ownerUsername:
+          type: string
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        reason:
+          type: string
+        decisionNote:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        decidedAt:
+          type: string
+          format: date-time
+          nullable: true
+    CreateApplicationRequest:
+      type: object
+      required: [ rolename ]
+      properties:
+        applicantUsername:
+          type: string
+          example: sina
+        rolename:
+          type: string
+          example: admin
+        reason:
+          type: string
+          example: I need this role to manage team permissions.
+    UpdateApplicationRequest:
+      type: object
+      required: [ action ]
+      properties:
+        action:
+          type: string
+          enum: [ APPROVE, REJECT, CANCEL ]
+        note:
+          type: string
+          description: Optional note for reject/approve/cancel
+    ApplicationStatus:
+      type: string
+      enum: [ PENDING, APPROVED, REJECTED, CANCELED ]
     CreateUserRequest:
       type: object
       required:
@@ -94,3 +378,63 @@ components:
        description:
          type: string
          example: test_role
+    RoleResponse:
+      type: object
+      properties:
+        rolename:
+          type: string
+        description:
+          type: string
+        owner:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    UpdateRoleRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        owner:
+          type: string
+        is_active:
+          type: boolean
+    UserResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        fullname:
+          type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    UpdateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        fullname:
+          type: string
+        is_active:
+          type: boolean
+    PatchApplicationRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/ApplicationStatus'
+        note:
+          type: string
+          description: Optional note when approving/rejecting/canceling

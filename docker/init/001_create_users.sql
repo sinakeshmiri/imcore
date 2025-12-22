@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(64) PRIMARY KEY,
     email VARCHAR(320) NOT NULL UNIQUE,
@@ -26,3 +28,27 @@ CREATE TABLE IF NOT EXISTS user_roles (
 
 CREATE INDEX IF NOT EXISTS idx_user_roles_username ON user_roles(username);
 CREATE INDEX IF NOT EXISTS idx_user_roles_rolename ON user_roles(rolename);
+
+CREATE TABLE IF NOT EXISTS applications (
+    application_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rolename VARCHAR(64) NOT NULL REFERENCES roles(rolename) ON DELETE CASCADE,
+    applicant_username VARCHAR(64) NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+    owner_username VARCHAR(64) NOT NULL REFERENCES users(username),
+
+    status VARCHAR(16) NOT NULL DEFAULT 'PENDING',
+    reason VARCHAR(640),
+    decision_note VARCHAR(640),
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    decided_at TIMESTAMPTZ
+    );
+
+
+CREATE INDEX IF NOT EXISTS idx_applications_applicant ON applications(applicant_username);
+CREATE INDEX IF NOT EXISTS idx_applications_owner ON applications(owner_username);
+CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
+CREATE INDEX IF NOT EXISTS idx_applications_role ON applications(rolename);
+
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_applications_pending
+    ON applications (rolename, applicant_username)
+    WHERE status = 'PENDING';

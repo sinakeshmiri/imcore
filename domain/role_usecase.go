@@ -5,9 +5,9 @@ import (
 )
 
 type CreateRoleRequest struct {
-	Rollname    string `json:"rolename" binding:"required,rolename"`
-	Owner       string `json:"OwnerUsername" binding:"required,owner"`
-	Description string `json:"description"`
+	RollName    string
+	Owner       string
+	Description string
 }
 
 type RoleUsecase interface {

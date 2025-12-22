@@ -14,7 +14,7 @@ func (h *Handler) CreateRole(
 ) (api.CreateRoleResponseObject, error) {
 	ucReq := domain.CreateRoleRequest{
 		Owner:       req.Body.Owner,
-		Rollname:    req.Body.Rolename,
+		RollName:    req.Body.Rolename,
 		Description: req.Body.Description,
 	}
 	err := h.roleUsecase.Create(ctx, &ucReq)
@@ -27,4 +27,19 @@ func (h *Handler) CreateRole(
 	default:
 		return api.CreateRole500Response{}, err
 	}
+}
+
+func (h *Handler) DeleteRole(ctx context.Context, request api.DeleteRoleRequestObject) (api.DeleteRoleResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (h *Handler) GetRole(ctx context.Context, request api.GetRoleRequestObject) (api.GetRoleResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (h *Handler) UpdateRole(ctx context.Context, request api.UpdateRoleRequestObject) (api.UpdateRoleResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
 }

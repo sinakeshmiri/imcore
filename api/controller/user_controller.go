@@ -29,3 +29,18 @@ func (h *Handler) CreateUser(
 		return api.CreateUser500Response{}, err
 	}
 }
+
+func (h *Handler) DeleteUser(ctx context.Context, request api.DeleteUserRequestObject) (api.DeleteUserResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (h *Handler) GetUser(ctx context.Context, request api.GetUserRequestObject) (api.GetUserResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (h *Handler) UpdateUser(ctx context.Context, request api.UpdateUserRequestObject) (api.UpdateUserResponseObject, error) {
+	//TODO implement me
+	panic("implement me")
+}

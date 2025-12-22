@@ -5,10 +5,10 @@ import (
 )
 
 type CreateUserRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Fullname string `json:"fullname" binding:"required,fullname"`
-	Username string `json:"username" binding:"required,username"`
-	Password string `json:"password" binding:"required"`
+	Email    string
+	Fullname string
+	Username string
+	Password string
 }
 
 type UserUsecase interface {

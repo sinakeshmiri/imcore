@@ -13,8 +13,8 @@ type roleUsecase struct {
 	contextTimeout time.Duration
 }
 
-func (cu roleUsecase) Create(ctx context.Context, req *domain.CreateRoleRequest) error {
-	byName, err := cu.roleRepository.FindByName(ctx, req.Rollname)
+func (ru roleUsecase) Create(ctx context.Context, req *domain.CreateRoleRequest) error {
+	byName, err := ru.roleRepository.FindByName(ctx, req.RollName)
 	if err != nil {
 		log.Printf("failed to check if the role already exists or not %s\n", err)
 		return domain.ErrDatabaseQueryFailed
@@ -24,14 +24,14 @@ func (cu roleUsecase) Create(ctx context.Context, req *domain.CreateRoleRequest)
 	}
 
 	role := domain.Role{
-		Rolename:      req.Rollname,
+		Rolename:      req.RollName,
 		Description:   req.Description,
 		OwnerUsername: req.Owner,
 		IsActive:      true,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
-	err = cu.roleRepository.Create(ctx, &role)
+	err = ru.roleRepository.Create(ctx, &role)
 	if err != nil {
 		log.Printf("failed to insert role: %s\n", err)
 		return domain.ErrDatabaseQueryFailed

@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sinakeshmiri/imcore/repository/user"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sinakeshmiri/imcore/api/controller"
 	api "github.com/sinakeshmiri/imcore/api/generated"
 	"github.com/sinakeshmiri/imcore/infrastructure/database"
+	"github.com/sinakeshmiri/imcore/repository"
 	"github.com/sinakeshmiri/imcore/usecase"
 )
 
@@ -22,9 +21,11 @@ func main() {
 	}
 	userRepository := repository.NewUserRepository(postgres)
 	roleRepository := repository.NewRoleRepository(postgres)
+	applicationRepository := repository.NewApplicationRepository(postgres)
 	userUseCase := usecase.NewUserUsecase(userRepository, 3*time.Second)
 	roleUsecase := usecase.NewRoleUsecase(roleRepository, 3*time.Second)
-	handler := controller.NewHandler(userUseCase, roleUsecase)
+	applicationUsecase := usecase.NewApplicationUsecase(applicationRepository, 3*time.Second)
+	handler := controller.NewHandler(userUseCase, roleUsecase, applicationUsecase)
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
