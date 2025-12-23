@@ -15,17 +15,12 @@ type ApplicationRepository interface {
 }
 
 type Application struct {
-	ID                string `gorm:"type:uuid;primaryKey"`
-	Rolename          string `gorm:"type:varchar(64);not null;index"`
-	ApplicantUsername string `gorm:"type:varchar(64);not null;index"`
-	OwnerUsername     string `gorm:"type:varchar(64);not null;index"`
-
-	Status       string `gorm:"type:varchar(16);not null;index"`
-	Reason       string `gorm:"type:varchar(640)"`
-	DecisionNote string `gorm:"type:varchar(640)"`
-
-	CreatedAt time.Time  `gorm:"not null;default:now();column:created_at"`
-	DecidedAt *time.Time `gorm:"column:decided_at"`
+	ID                string
+	Rolename          string
+	ApplicantUsername string
+	Status            ApplicationStatus
+	Reason            string
+	DecisionNote      string
+	CreatedAt         time.Time
+	DecidedAt         *time.Time
 }
-
-func (Application) TableName() string { return "applications" }

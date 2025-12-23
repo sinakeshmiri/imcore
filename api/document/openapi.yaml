@@ -173,6 +173,13 @@ paths:
       operationId: listApplications
       tags: [Applications]
       parameters:
+        - name: user
+          in: query
+          required: true
+          description: >
+            applications for the specific user
+          schema:
+            type: string
         - name: direction
           in: query
           required: false

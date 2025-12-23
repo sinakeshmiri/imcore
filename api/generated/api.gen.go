@@ -49,8 +49,9 @@ type ApplicationStatus string
 
 // CreateApplicationRequest defines model for CreateApplicationRequest.
 type CreateApplicationRequest struct {
-	Reason   *string `json:"reason,omitempty"`
-	Rolename string  `json:"rolename"`
+	ApplicantUsername *string `json:"applicantUsername,omitempty"`
+	Reason            *string `json:"reason,omitempty"`
+	Rolename          string  `json:"rolename"`
 }
 
 // CreateRoleRequest defines model for CreateRoleRequest.
@@ -110,6 +111,9 @@ type UserResponse struct {
 
 // ListApplicationsParams defines parameters for ListApplications.
 type ListApplicationsParams struct {
+	// User applications for the specific user
+	User string `form:"user" json:"user"`
+
 	// Direction incoming = applications for roles I own (I can review), outgoing = applications I submitted, all = both.
 	Direction *ListApplicationsParamsDirection `form:"direction,omitempty" json:"direction,omitempty"`
 
@@ -270,6 +274,21 @@ func (siw *ServerInterfaceWrapper) ListApplications(w http.ResponseWriter, r *ht
 
 	// Parameter object where we will unmarshal all parameters from the context
 	var params ListApplicationsParams
+
+	// ------------- Required query parameter "user" -------------
+
+	if paramValue := r.URL.Query().Get("user"); paramValue != "" {
+
+	} else {
+		siw.ErrorHandlerFunc(w, r, &RequiredParamError{ParamName: "user"})
+		return
+	}
+
+	err = runtime.BindQueryParameter("form", true, true, "user", r.URL.Query(), &params.User)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "user", Err: err})
+		return
+	}
 
 	// ------------- Optional query parameter "direction" -------------
 
