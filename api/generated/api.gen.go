@@ -33,15 +33,15 @@ const (
 
 // Application defines model for Application.
 type Application struct {
-	ApplicantUsername *string             `json:"applicantUsername,omitempty"`
-	CreatedAt         *time.Time          `json:"createdAt,omitempty"`
-	DecidedAt         *time.Time          `json:"decidedAt"`
-	DecisionNote      *string             `json:"decisionNote"`
-	Id                *openapi_types.UUID `json:"id,omitempty"`
-	OwnerUsername     *string             `json:"ownerUsername,omitempty"`
-	Reason            *string             `json:"reason,omitempty"`
-	Rolename          *string             `json:"rolename,omitempty"`
-	Status            *ApplicationStatus  `json:"status,omitempty"`
+	ApplicantUsername *string    `json:"applicantUsername,omitempty"`
+	CreatedAt         *time.Time `json:"createdAt,omitempty"`
+	DecidedAt         *time.Time `json:"decidedAt"`
+	DecisionNote      *string    `json:"decisionNote"`
+	Id                *string    `json:"id,omitempty"`
+	OwnerUsername     *string    `json:"ownerUsername,omitempty"`
+	Reason            *string    `json:"reason,omitempty"`
+	Rolename          *string    `json:"rolename,omitempty"`
+	Status            *string    `json:"status,omitempty"`
 }
 
 // ApplicationStatus defines model for ApplicationStatus.
@@ -753,11 +753,11 @@ type CreateApplicationResponseObject interface {
 	VisitCreateApplicationResponse(w http.ResponseWriter) error
 }
 
-type CreateApplication201JSONResponse Application
+type CreateApplication200JSONResponse Application
 
-func (response CreateApplication201JSONResponse) VisitCreateApplicationResponse(w http.ResponseWriter) error {
+func (response CreateApplication200JSONResponse) VisitCreateApplicationResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
+	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }

@@ -224,7 +224,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateApplicationRequest'
       responses:
-        '201':
+        '200':
           description: Application created
           content:
             application/json:
@@ -300,7 +300,6 @@ components:
       properties:
         id:
           type: string
-          format: uuid
         rolename:
           type: string
         applicantUsername:
@@ -308,7 +307,7 @@ components:
         ownerUsername:
           type: string
         status:
-          $ref: '#/components/schemas/ApplicationStatus'
+          type: string
         reason:
           type: string
         decisionNote:

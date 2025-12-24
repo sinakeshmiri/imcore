@@ -40,7 +40,7 @@ func ParseStatus(str string) (ApplicationStatus, error) {
 }
 
 type ApplicationUsecase interface {
-	Create(c context.Context, req *CreateApplicationRequest) error
+	Create(c context.Context, req *CreateApplicationRequest) (Application, error)
 	ListIncoming(c context.Context, user string) ([]Application, error)
 	ListOutgoing(c context.Context, user string) ([]Application, error)
 }

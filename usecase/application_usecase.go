@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/sinakeshmiri/imcore/domain"
 )
 
@@ -24,33 +23,21 @@ func (a applicationUsecase) ListOutgoing(c context.Context, user string) ([]doma
 	panic("implement me")
 }
 
-func (a applicationUsecase) Create(c context.Context, req *domain.CreateApplicationRequest) error {
+func (a applicationUsecase) Create(c context.Context, req *domain.CreateApplicationRequest) (domain.Application, error) {
 	//check if it exists
-	exists, err := a.applicationRepository.Exists(c, req.RoleName, req.ApplicantUsername)
+	exists, err := a.applicationRepository.ExistsPending(c, req.RoleName, req.ApplicantUsername)
 	if err != nil {
-		return err
+		return domain.Application{}, err
 	}
 	if exists {
-		return errors.New("application already exists")
+		return domain.Application{}, errors.New("application already exists")
 	}
-	appId, err := uuid.NewUUID()
+
+	app, err := a.applicationRepository.Create(c, req.RoleName, req.ApplicantUsername, req.Reason)
 	if err != nil {
-		return err
+		return domain.Application{}, err
 	}
-	err = a.applicationRepository.Create(c, &domain.Application{
-		ID:                appId.String(),
-		Rolename:          req.RoleName,
-		ApplicantUsername: req.ApplicantUsername,
-		Status:            domain.Pending,
-		Reason:            req.Reason,
-		DecisionNote:      "",
-		CreatedAt:         time.Now(),
-		DecidedAt:         nil,
-	})
-	if err != nil {
-		return err
-	}
-	return nil
+	return app, nil
 }
 
 func NewApplicationUsecase(applicationRepository domain.ApplicationRepository, timeout time.Duration) domain.ApplicationUsecase {
