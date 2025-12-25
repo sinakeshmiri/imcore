@@ -32,14 +32,14 @@ func (a applicationUsecase) ListOutgoing(c context.Context, user string) ([]*dom
 func (a applicationUsecase) Create(c context.Context, req *domain.CreateApplicationRequest) (*domain.Application, error) {
 	exists, err := a.applicationRepository.ExistsPending(c, req.RoleName, req.ApplicantUsername)
 	if err != nil {
-		return &domain.Application{}, err
+		return nil, err
 	}
 	if exists {
-		return &domain.Application{}, errors.New("application already exists")
+		return nil, errors.New("application already exists")
 	}
 	app, err := a.applicationRepository.Create(c, req.RoleName, req.ApplicantUsername, req.Reason)
 	if err != nil {
-		return &domain.Application{}, err
+		return nil, err
 	}
 	return &app, nil
 }

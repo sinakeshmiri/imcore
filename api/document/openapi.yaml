@@ -303,10 +303,12 @@ components:
       type: object
       properties:
         outgoing:
+          maxItems: 1000
           type: array
           items:
             $ref: '#/components/schemas/Application'
         incoming:
+          maxItems: 1000
           type: array
           items:
             $ref: '#/components/schemas/Application'

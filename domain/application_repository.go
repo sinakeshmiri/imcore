@@ -23,5 +23,5 @@ type Application struct {
 	Reason            string
 	DecisionNote      string
 	CreatedAt         time.Time
-	DecidedAt         time.Time
+	DecidedAt         *time.Time
 }

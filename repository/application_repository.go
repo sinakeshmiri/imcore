@@ -140,8 +140,8 @@ type ApplicationModel struct {
 	Reason       string `gorm:"type:varchar(640);column:reason"`
 	DecisionNote string `gorm:"type:varchar(640);column:decision_note"`
 
-	CreatedAt time.Time `gorm:"not null;default:now();column:created_at"`
-	DecidedAt time.Time `gorm:"column:decided_at"`
+	CreatedAt time.Time  `gorm:"not null;default:now();column:created_at"`
+	DecidedAt *time.Time `gorm:"column:decided_at"`
 }
 
 func toDomain(m ApplicationModel) (domain.Application, error) {
@@ -153,6 +153,7 @@ func toDomain(m ApplicationModel) (domain.Application, error) {
 	return domain.Application{
 		ID:                m.ID,
 		Rolename:          m.Rolename,
+		OwnerUsername:     m.OwnerUsername,
 		ApplicantUsername: m.ApplicantUsername,
 		Status:            status,
 		Reason:            m.Reason,

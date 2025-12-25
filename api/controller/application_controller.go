@@ -16,8 +16,8 @@ func (h *Handler) ListApplications(ctx context.Context, request api.ListApplicat
 	if err != nil {
 		return nil, err
 	}
-	var resOutgoing []api.Application
-	var resIncoming []api.Application
+	resOutgoing := make([]api.Application, 0, len(outgoing))
+	resIncoming := make([]api.Application, 0, len(incoming))
 	for _, entity := range outgoing {
 		resOutgoing = append(resOutgoing, mapApplicationFromDomain(entity))
 	}
@@ -41,11 +41,12 @@ func (h *Handler) CreateApplication(ctx context.Context, request api.CreateAppli
 		return nil, err
 	}
 	status := app.Status.String()
+
 	return api.CreateApplication200JSONResponse{
 		ApplicantUsername: &app.ApplicantUsername,
 		CreatedAt:         &app.CreatedAt,
-		DecidedAt:         nil,
-		DecisionNote:      nil,
+		DecidedAt:         app.DecidedAt,
+		DecisionNote:      &app.DecisionNote,
 		Id:                &app.ID,
 		OwnerUsername:     &app.OwnerUsername,
 		Reason:            &app.Reason,
@@ -66,10 +67,11 @@ func (h *Handler) PatchApplication(ctx context.Context, request api.PatchApplica
 
 func mapApplicationFromDomain(entity *domain.Application) api.Application {
 	status := entity.Status.String()
+
 	return api.Application{
 		ApplicantUsername: &entity.ApplicantUsername,
 		CreatedAt:         &entity.CreatedAt,
-		DecidedAt:         &entity.DecidedAt,
+		DecidedAt:         entity.DecidedAt,
 		DecisionNote:      &entity.DecisionNote,
 		Id:                &entity.ID,
 		OwnerUsername:     &entity.OwnerUsername,
