@@ -40,19 +40,7 @@ func (h *Handler) CreateApplication(ctx context.Context, request api.CreateAppli
 	if err != nil {
 		return nil, err
 	}
-	status := app.Status.String()
-
-	return api.CreateApplication200JSONResponse{
-		ApplicantUsername: &app.ApplicantUsername,
-		CreatedAt:         &app.CreatedAt,
-		DecidedAt:         app.DecidedAt,
-		DecisionNote:      &app.DecisionNote,
-		Id:                &app.ID,
-		OwnerUsername:     &app.OwnerUsername,
-		Reason:            &app.Reason,
-		Rolename:          &app.Rolename,
-		Status:            &status,
-	}, nil
+	return api.CreateApplication200JSONResponse(mapApplicationFromDomain(app)), nil
 }
 
 func (h *Handler) GetApplication(ctx context.Context, request api.GetApplicationRequestObject) (api.GetApplicationResponseObject, error) {
