@@ -77,19 +77,3 @@ func mapApplicationFromDomain(entity *domain.Application) api.Application {
 		Status:            &status,
 	}
 }
-
-func mapApplicationFromDomain(entity *domain.Application) api.Application {
-	status := entity.Status.String()
-
-	return api.Application{
-		ApplicantUsername: &entity.ApplicantUsername,
-		CreatedAt:         &entity.CreatedAt,
-		DecidedAt:         entity.DecidedAt,
-		DecisionNote:      &entity.DecisionNote,
-		Id:                &entity.ID,
-		OwnerUsername:     &entity.OwnerUsername,
-		Reason:            &entity.Reason,
-		Rolename:          &entity.Rolename,
-		Status:            &status,
-	}
-}
