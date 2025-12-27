@@ -27,25 +27,18 @@ import (
 )
 
 func main() {
-	// ---- DB ----
 	db, err := database.OpenPostgres("postgres://app:app@localhost:5435/app?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	timeout := 3 * time.Second
-
-	// ---- Repositories ----
 	userRepo := usersrepo.NewUserRepository(db)
 	roleRepo := rolesrepo.NewRoleRepository(db)
-	appRepo := appsrepo.NewApplicationRepository(db) // keep apps repo inside internal/applications/repository
-
-	// ---- Usecases ----
+	appRepo := appsrepo.NewApplicationRepository(db)
 	userUC := usersuc.NewUserUsecase(userRepo, timeout)
 	roleUC := rolesuc.NewRoleUsecase(roleRepo, timeout)
 	appUC := appsuc.NewApplicationUsecase(appRepo, timeout)
 
-	// ---- Feature handlers (controllers) ----
 	userHandler := usershttp.NewHandler(userUC)
 	roleHandler := roleshttp.NewHandler(roleUC)
 	appHandler := appshttp.NewHandler(appUC)
