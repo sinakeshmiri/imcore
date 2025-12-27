@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/sinakeshmiri/imcore/internal/roles/domain"
+	"github.com/sinakeshmiri/authon-core/internal/roles/domain"
 	"gorm.io/gorm"
 )
 

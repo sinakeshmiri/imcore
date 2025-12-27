@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	domain2 "github.com/sinakeshmiri/imcore/internal/applications/domain"
+	domain2 "github.com/sinakeshmiri/authon-core/internal/applications/domain"
 )
 
 type applicationUsecase struct {

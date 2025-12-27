@@ -3,8 +3,8 @@ package http
 import (
 	"context"
 
-	api "github.com/sinakeshmiri/imcore/api/generated"
-	"github.com/sinakeshmiri/imcore/internal/applications/domain"
+	api "github.com/sinakeshmiri/authon-core/api/generated"
+	"github.com/sinakeshmiri/authon-core/internal/applications/domain"
 )
 
 type Handler struct {

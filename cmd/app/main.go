@@ -8,22 +8,22 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	api "github.com/sinakeshmiri/imcore/api/generated"
-	httpapi "github.com/sinakeshmiri/imcore/api/handler"
+	api "github.com/sinakeshmiri/authon-core/api/generated"
+	httpapi "github.com/sinakeshmiri/authon-core/api/handler"
 
-	appshttp "github.com/sinakeshmiri/imcore/internal/applications/http"
-	appsrepo "github.com/sinakeshmiri/imcore/internal/applications/repository"
-	appsuc "github.com/sinakeshmiri/imcore/internal/applications/usecase"
+	appshttp "github.com/sinakeshmiri/authon-core/internal/applications/http"
+	appsrepo "github.com/sinakeshmiri/authon-core/internal/applications/repository"
+	appsuc "github.com/sinakeshmiri/authon-core/internal/applications/usecase"
 
-	roleshttp "github.com/sinakeshmiri/imcore/internal/roles/http"
-	rolesrepo "github.com/sinakeshmiri/imcore/internal/roles/repository"
-	rolesuc "github.com/sinakeshmiri/imcore/internal/roles/usecase"
+	roleshttp "github.com/sinakeshmiri/authon-core/internal/roles/http"
+	rolesrepo "github.com/sinakeshmiri/authon-core/internal/roles/repository"
+	rolesuc "github.com/sinakeshmiri/authon-core/internal/roles/usecase"
 
-	usershttp "github.com/sinakeshmiri/imcore/internal/users/http"
-	usersrepo "github.com/sinakeshmiri/imcore/internal/users/repository"
-	usersuc "github.com/sinakeshmiri/imcore/internal/users/usecase"
+	usershttp "github.com/sinakeshmiri/authon-core/internal/users/http"
+	usersrepo "github.com/sinakeshmiri/authon-core/internal/users/repository"
+	usersuc "github.com/sinakeshmiri/authon-core/internal/users/usecase"
 
-	"github.com/sinakeshmiri/imcore/infrastructure/database"
+	"github.com/sinakeshmiri/authon-core/infrastructure/database"
 )
 
 func main() {

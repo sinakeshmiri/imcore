@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	api "github.com/sinakeshmiri/imcore/api/generated"
-	"github.com/sinakeshmiri/imcore/internal/users/domain"
+	api "github.com/sinakeshmiri/authon-core/api/generated"
+	"github.com/sinakeshmiri/authon-core/internal/users/domain"
 )
 
 type Handler struct {

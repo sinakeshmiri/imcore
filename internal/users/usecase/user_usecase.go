@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	domain "github.com/sinakeshmiri/imcore/internal/users/domain"
+	domain "github.com/sinakeshmiri/authon-core/internal/users/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 

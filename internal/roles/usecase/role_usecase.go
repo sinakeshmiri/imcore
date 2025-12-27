@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/sinakeshmiri/imcore/internal/roles/domain"
+	"github.com/sinakeshmiri/authon-core/internal/roles/domain"
 )
 
 type roleUsecase struct {

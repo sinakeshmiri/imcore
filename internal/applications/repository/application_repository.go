@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sinakeshmiri/imcore/internal/applications/domain"
+	"github.com/sinakeshmiri/authon-core/internal/applications/domain"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

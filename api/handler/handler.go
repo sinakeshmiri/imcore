@@ -3,10 +3,10 @@ package handler
 import (
 	"context"
 
-	api "github.com/sinakeshmiri/imcore/api/generated"
-	appshttp "github.com/sinakeshmiri/imcore/internal/applications/http"
-	roleshttp "github.com/sinakeshmiri/imcore/internal/roles/http"
-	usershttp "github.com/sinakeshmiri/imcore/internal/users/http"
+	api "github.com/sinakeshmiri/authon-core/api/generated"
+	appshttp "github.com/sinakeshmiri/authon-core/internal/applications/http"
+	roleshttp "github.com/sinakeshmiri/authon-core/internal/roles/http"
+	usershttp "github.com/sinakeshmiri/authon-core/internal/users/http"
 )
 
 type APIHandler struct {

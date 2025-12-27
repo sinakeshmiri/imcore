@@ -1,4 +1,4 @@
-module github.com/sinakeshmiri/imcore
+module github.com/sinakeshmiri/authon-core
 
 go 1.23.0
 
