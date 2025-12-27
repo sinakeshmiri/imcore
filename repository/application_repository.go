@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/sinakeshmiri/imcore/domain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func (a ApplicationModel) TableName() string { return "applications" }
@@ -15,7 +17,12 @@ type ApplicationRepository struct {
 	db *gorm.DB
 }
 
-func (a ApplicationRepository) Create(c context.Context, roleName string, username string, reason string) (domain.Application, error) {
+func (a *ApplicationRepository) Reject(ctx context.Context, applicationID string, decisionNote *string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (a *ApplicationRepository) Create(c context.Context, roleName string, username string, reason string) (domain.Application, error) {
 	var role domain.Role
 	err := a.db.WithContext(c).
 		Table("roles").
@@ -45,12 +52,12 @@ func (a ApplicationRepository) Create(c context.Context, roleName string, userna
 	return app, nil
 }
 
-func (a ApplicationRepository) GetByID(ctx context.Context, id string) (*domain.Application, error) {
+func (a *ApplicationRepository) GetByID(ctx context.Context, id string) (*domain.Application, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (a ApplicationRepository) ListOutGoing(c context.Context, applicantUsername string) ([]*domain.Application, error) {
+func (a *ApplicationRepository) ListOutGoing(c context.Context, applicantUsername string) ([]*domain.Application, error) {
 	var models []ApplicationModel
 
 	err := a.db.WithContext(c).
@@ -77,7 +84,7 @@ func (a ApplicationRepository) ListOutGoing(c context.Context, applicantUsername
 	return out, nil
 }
 
-func (a ApplicationRepository) ListInComing(c context.Context, ownerUsername string) ([]*domain.Application, error) {
+func (a *ApplicationRepository) ListInComing(c context.Context, ownerUsername string) ([]*domain.Application, error) {
 	var models []ApplicationModel
 	err := a.db.WithContext(c).
 		Model(&ApplicationModel{}).
@@ -102,9 +109,64 @@ func (a ApplicationRepository) ListInComing(c context.Context, ownerUsername str
 
 	return out, nil
 }
-func (a ApplicationRepository) UpdateStatus(c context.Context, id string, status domain.ApplicationStatus) error {
-	//TODO implement me
-	panic("implement me")
+func (a *ApplicationRepository) Approve(ctx context.Context, applicationID string, decisionNote *string) error {
+
+	return a.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var app ApplicationModel
+		err := tx.WithContext(ctx).
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("application_id = ?", applicationID).
+			First(&app).Error
+
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				// TODO: add custom error
+			}
+			return err
+		}
+
+		current, err := domain.ParseStatus(app.Status)
+		if err != nil {
+			return err
+		}
+		if current != domain.Pending {
+			return errors.New("application is not pending")
+		}
+
+		now := time.Now()
+		updates := map[string]any{
+			"status":     domain.Approved.String(),
+			"decided_at": now,
+		}
+		if decisionNote != nil {
+			updates["decision_note"] = *decisionNote
+		}
+
+		res := tx.WithContext(ctx).
+			Model(&ApplicationModel{}).
+			Where("application_id = ?", applicationID).
+			Where("status = ?", domain.Pending.String()).
+			Updates(updates)
+
+		if res.Error != nil {
+			return res.Error
+		}
+		if res.RowsAffected == 0 {
+			return errors.New("transaction affected 0 rows")
+		}
+
+		err = tx.WithContext(ctx).Exec(`
+			INSERT INTO user_roles (username, rolename)
+			VALUES (?, ?)
+			ON CONFLICT DO NOTHING
+		`, app.ApplicantUsername, app.Rolename).Error
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (a *ApplicationRepository) ExistsPending(

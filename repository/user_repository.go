@@ -32,3 +32,20 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*domain
 	}
 	return &u, nil
 }
+
+func (r *UserRepository) ListRoles(ctx context.Context, username string) ([]string, error) {
+	var roles []string
+
+	err := r.db.WithContext(ctx).
+		Table("user_roles").
+		Select("rolename").
+		Where("username = ?", username).
+		Order("created_at DESC").
+		Scan(&roles).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return roles, nil
+}

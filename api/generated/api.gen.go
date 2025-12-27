@@ -108,6 +108,12 @@ type UserResponse struct {
 	Username  *string              `json:"username,omitempty"`
 }
 
+// UserRolesResponse defines model for UserRolesResponse.
+type UserRolesResponse struct {
+	Roles    []string `json:"roles"`
+	Username string   `json:"username"`
+}
+
 // ListApplicationsParams defines parameters for ListApplications.
 type ListApplicationsParams struct {
 	// User applications for the specific user
@@ -170,6 +176,9 @@ type ServerInterface interface {
 	// Update a user
 	// (PUT /users/{username})
 	UpdateUser(w http.ResponseWriter, r *http.Request, username string)
+	// List roles assigned to a user
+	// (GET /users/{username}/roles)
+	ListUserRoles(w http.ResponseWriter, r *http.Request, username string)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -245,6 +254,12 @@ func (_ Unimplemented) GetUser(w http.ResponseWriter, r *http.Request, username 
 // Update a user
 // (PUT /users/{username})
 func (_ Unimplemented) UpdateUser(w http.ResponseWriter, r *http.Request, username string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// List roles assigned to a user
+// (GET /users/{username}/roles)
+func (_ Unimplemented) ListUserRoles(w http.ResponseWriter, r *http.Request, username string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -533,6 +548,31 @@ func (siw *ServerInterfaceWrapper) UpdateUser(w http.ResponseWriter, r *http.Req
 	handler.ServeHTTP(w, r)
 }
 
+// ListUserRoles operation middleware
+func (siw *ServerInterfaceWrapper) ListUserRoles(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "username" -------------
+	var username string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "username", chi.URLParam(r, "username"), &username, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ListUserRoles(w, r, username)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -682,6 +722,9 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	r.Group(func(r chi.Router) {
 		r.Put(options.BaseURL+"/users/{username}", wrapper.UpdateUser)
 	})
+	r.Group(func(r chi.Router) {
+		r.Get(options.BaseURL+"/users/{username}/roles", wrapper.ListUserRoles)
+	})
 
 	return r
 }
@@ -802,13 +845,12 @@ type PatchApplicationResponseObject interface {
 	VisitPatchApplicationResponse(w http.ResponseWriter) error
 }
 
-type PatchApplication200JSONResponse Application
+type PatchApplication201Response struct {
+}
 
-func (response PatchApplication200JSONResponse) VisitPatchApplicationResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
+func (response PatchApplication201Response) VisitPatchApplicationResponse(w http.ResponseWriter) error {
+	w.WriteHeader(201)
+	return nil
 }
 
 type PatchApplication403Response struct {
@@ -1047,6 +1089,31 @@ func (response UpdateUser404Response) VisitUpdateUserResponse(w http.ResponseWri
 	return nil
 }
 
+type ListUserRolesRequestObject struct {
+	Username string `json:"username"`
+}
+
+type ListUserRolesResponseObject interface {
+	VisitListUserRolesResponse(w http.ResponseWriter) error
+}
+
+type ListUserRoles200JSONResponse UserRolesResponse
+
+func (response ListUserRoles200JSONResponse) VisitListUserRolesResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ListUserRoles404Response struct {
+}
+
+func (response ListUserRoles404Response) VisitListUserRolesResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// List applications (incoming/outgoing for current user)
@@ -1085,6 +1152,9 @@ type StrictServerInterface interface {
 	// Update a user
 	// (PUT /users/{username})
 	UpdateUser(ctx context.Context, request UpdateUserRequestObject) (UpdateUserResponseObject, error)
+	// List roles assigned to a user
+	// (GET /users/{username}/roles)
+	ListUserRoles(ctx context.Context, request ListUserRolesRequestObject) (ListUserRolesResponseObject, error)
 }
 
 type StrictHandlerFunc = strictnethttp.StrictHTTPHandlerFunc
@@ -1457,6 +1527,32 @@ func (sh *strictHandler) UpdateUser(w http.ResponseWriter, r *http.Request, user
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(UpdateUserResponseObject); ok {
 		if err := validResponse.VisitUpdateUserResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ListUserRoles operation middleware
+func (sh *strictHandler) ListUserRoles(w http.ResponseWriter, r *http.Request, username string) {
+	var request ListUserRolesRequestObject
+
+	request.Username = username
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ListUserRoles(ctx, request.(ListUserRolesRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ListUserRoles")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ListUserRolesResponseObject); ok {
+		if err := validResponse.VisitListUserRolesResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

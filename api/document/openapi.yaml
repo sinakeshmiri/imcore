@@ -88,6 +88,28 @@ paths:
           description: User deleted
         '404':
           description: User not found
+
+  /users/{username}/roles:
+    get:
+      summary: List roles assigned to a user
+      operationId: listUserRoles
+      tags: [ Users, Roles ]
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Roles of the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRolesResponse'
+        '404':
+          description: User not found
+
   /roles:
     post:
       summary: Create a role
@@ -257,12 +279,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchApplicationRequest'
       responses:
-        '200':
+        '201':
           description: Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Application'
         '403':
           description: Not allowed
         '409':
@@ -436,3 +454,15 @@ components:
         note:
           type: string
           description: Optional note when approving/rejecting/canceling
+    UserRolesResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+      required: [ username, roles ]
+
+    

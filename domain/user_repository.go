@@ -6,8 +6,9 @@ import (
 )
 
 type UserRepository interface {
-	Create(c context.Context, user *User) error
-	FindByEmail(c context.Context, email string) (*User, error)
+	Create(ctx context.Context, user *User) error
+	FindByEmail(ctx context.Context, email string) (*User, error)
+	ListRoles(ctx context.Context, username string) ([]string, error)
 }
 
 type User struct {

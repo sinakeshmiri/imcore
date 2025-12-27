@@ -49,8 +49,17 @@ func (h *Handler) GetApplication(ctx context.Context, request api.GetApplication
 }
 
 func (h *Handler) PatchApplication(ctx context.Context, request api.PatchApplicationRequestObject) (api.PatchApplicationResponseObject, error) {
-	//TODO implement me
-	panic("implement me")
+	if request.Body.Status == api.APPROVED {
+		err := h.applicationUsecase.Approve(ctx, request.ApplicationId.String(), request.Body.Note)
+		if err != nil {
+			return nil, err
+		}
+		return api.PatchApplication201Response{}, nil
+	} else if request.Body.Status == api.REJECTED {
+
+	}
+	return api.PatchApplication403Response{}, nil
+
 }
 
 func mapApplicationFromDomain(entity *domain.Application) api.Application {

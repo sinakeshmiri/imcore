@@ -43,4 +43,6 @@ type ApplicationUsecase interface {
 	Create(c context.Context, req *CreateApplicationRequest) (*Application, error)
 	ListIncoming(c context.Context, user string) ([]*Application, error)
 	ListOutgoing(c context.Context, user string) ([]*Application, error)
+	Approve(ctx context.Context, applicationID string, decisionNote *string) error
+	Reject(ctx context.Context, applicationID string, decisionNote *string) error
 }

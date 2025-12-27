@@ -10,7 +10,8 @@ type ApplicationRepository interface {
 	GetByID(ctx context.Context, id string) (*Application, error)
 	ListOutGoing(c context.Context, id string) ([]*Application, error)
 	ListInComing(c context.Context, id string) ([]*Application, error)
-	UpdateStatus(c context.Context, id string, status ApplicationStatus) error
+	Approve(ctx context.Context, applicationID string, decisionNote *string) error
+	Reject(ctx context.Context, applicationID string, decisionNote *string) error
 	ExistsPending(c context.Context, role string, username string) (bool, error)
 }
 

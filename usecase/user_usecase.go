@@ -15,7 +15,7 @@ type userUsecase struct {
 	contextTimeout time.Duration
 }
 
-func (cu userUsecase) Create(ctx context.Context, req *domain.CreateUserRequest) error {
+func (cu *userUsecase) Create(ctx context.Context, req *domain.CreateUserRequest) error {
 	byEmail, err := cu.userRepository.FindByEmail(ctx, req.Email)
 	if err != nil {
 		log.Printf("failed to check if the user already exists or not %s\n", err)
@@ -49,6 +49,13 @@ func (cu userUsecase) Create(ctx context.Context, req *domain.CreateUserRequest)
 		return domain.ErrDatabaseQueryFailed
 	}
 	return nil
+}
+func (cu *userUsecase) ListRoles(c context.Context, username string) ([]string, error) {
+	roles, err := cu.userRepository.ListRoles(c, username)
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
 }
 
 func NewUserUsecase(userRepository domain.UserRepository, timeout time.Duration) domain.UserUsecase {

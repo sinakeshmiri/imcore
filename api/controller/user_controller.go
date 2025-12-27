@@ -29,6 +29,16 @@ func (h *Handler) CreateUser(
 		return api.CreateUser500Response{}, err
 	}
 }
+func (h *Handler) ListUserRoles(ctx context.Context, request api.ListUserRolesRequestObject) (api.ListUserRolesResponseObject, error) {
+	roles, err := h.userUsecase.ListRoles(ctx, request.Username)
+	if err != nil {
+		return nil, err
+	}
+	return api.ListUserRoles200JSONResponse{
+		Roles:    roles,
+		Username: request.Username,
+	}, nil
+}
 
 func (h *Handler) DeleteUser(ctx context.Context, request api.DeleteUserRequestObject) (api.DeleteUserResponseObject, error) {
 	//TODO implement me
