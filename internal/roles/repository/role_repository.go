@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/sinakeshmiri/authon-core/internal/roles/domain"
 	"gorm.io/gorm"
@@ -17,11 +18,12 @@ func NewRoleRepository(db *gorm.DB) *RoleRepository {
 }
 
 func (r *RoleRepository) Create(ctx context.Context, role *domain.Role) error {
-	return r.db.WithContext(ctx).Create(role).Error
+	roleModel := fromDomain(role)
+	return r.db.WithContext(ctx).Create(roleModel).Error
 }
 
 func (r *RoleRepository) FindByName(ctx context.Context, name string) (*domain.Role, error) {
-	var role domain.Role
+	var role RoleModel
 	err := r.db.WithContext(ctx).Where("rolename = ?", name).First(&role).Error
 	//TODO: handle when owner doesn't exist
 	if err != nil {
@@ -30,5 +32,39 @@ func (r *RoleRepository) FindByName(ctx context.Context, name string) (*domain.R
 		}
 		return nil, err
 	}
-	return &role, nil
+	domainRole := role.toDomain()
+	return domainRole, nil
 }
+
+type RoleModel struct {
+	Rolename      string    `gorm:"type:varchar(320);uniqueIndex;not null;primaryKey"`
+	OwnerUsername string    `gorm:"type:varchar(320);not null"`
+	Description   string    `gorm:"type:varchar(640);"`
+	IsActive      bool      `gorm:"not null;default:true;column:is_active"`
+	CreatedAt     time.Time `gorm:"not null;default:now();column:created_at"`
+	UpdatedAt     time.Time `gorm:"not null;default:now();column:updated_at"`
+}
+
+func (r *RoleModel) toDomain() *domain.Role {
+	return &domain.Role{
+		Rolename:      r.Rolename,
+		OwnerUsername: r.OwnerUsername,
+		Description:   r.Description,
+		IsActive:      r.IsActive,
+		CreatedAt:     r.CreatedAt,
+		UpdatedAt:     r.UpdatedAt,
+	}
+}
+
+func fromDomain(domain *domain.Role) *RoleModel {
+	return &RoleModel{
+		Rolename:      domain.Rolename,
+		OwnerUsername: domain.OwnerUsername,
+		Description:   domain.Description,
+		IsActive:      domain.IsActive,
+		CreatedAt:     domain.CreatedAt,
+		UpdatedAt:     domain.UpdatedAt,
+	}
+}
+
+func (r *RoleModel) TableName() string { return "roles" }
